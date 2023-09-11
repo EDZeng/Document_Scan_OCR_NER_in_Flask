@@ -1,0 +1,57 @@
+資料前處理完成後先將檔案轉成 pickle檔
+
+到spacy的官網的Usage頁面 https://spacy.io/usage/training
+
+選擇需求 , 是選English 和ner 然後按左下角下載 , 並把cfg檔放到訓練目錄下
+
+往下拉找到preprocess.py的地方 , 複製程式碼
+
+在同樣的目錄中開啟一個preprocess.py的檔案 , 貼上程式碼 , 然後開始修改
+
+以下是針對這個專題的範例程式碼
+
+import spacy
+from spacy.tokens import DocBin
+import pickle
+
+nlp = spacy.blank("en")
+
+# load Data
+training_data = pickle.load(open('./data/TrainData.pickle', 'rb'))
+test_data = pickle.load(open('./data/TestData.pickle', 'rb'))
+
+# the DocBin will store the example documents
+db = DocBin()
+for text, annotations in training_data:
+    doc = nlp(text)
+    ents = []
+    for start, end, label in annotations['entities'] :      # annotations['entities']就是在資料前處理時的索引資訊
+        span = doc.char_span(start, end, label=label)
+        ents.append(span)
+    doc.ents = ents
+    db.add(doc)
+db.to_disk("./data/train.spacy")
+
+
+
+# the DocBin will store the example documents
+db_test = DocBin()
+for text, annotations in test_data:
+    doc = nlp(text)
+    ents = []
+    for start, end, label in annotations['entities']:
+        span = doc.char_span(start, end, label=label)
+        ents.append(span)
+    doc.ents = ents
+    db_test.add(doc)
+db_test.to_disk("./data/test.spacy")
+
+
+改完後開啟jupyter notebook 的終端機去執行剛剛的preprocess.py檔案 , 然後就可以得到spacy的檔案
+
+然後執行訓練的指令 : 
+python -m spacy train .\config.cfg --output .\output\ --paths.train .\data\train.spacy --paths.dev .\data\test.spacy
+
+
+
+

@@ -1,0 +1,2 @@
+https://digi.bib.uni-mannheim.de/tesseract/
+https://tesseract-ocr.github.io/tessdoc/Installation.html
